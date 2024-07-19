@@ -32,6 +32,7 @@ export function Publication({
     <Link
       href={`/app/publication/${id}`}
       prefetch
+      date-testid="publication-link-test"
       className="p-8 rounded-lg min-h-[150px] border border-solid border-zinc-300 flex items-start justify-center gap-3 w-[800px] hover:cursor-pointer flex-col hover:border-zinc-600 z-0"
     >
       <div className="w-full items-center justify-between flex">
