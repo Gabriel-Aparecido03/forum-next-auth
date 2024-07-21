@@ -11,11 +11,11 @@ type ProfileState = {
 const profileSlice = createSlice({
   name: "profile",
   initialState: {
-    id: null,
-    username: null,
-    userId: null,
-    description: null,
-    activedAt: null,
+    id: "",
+    username: "",
+    userId: "",
+    description: "",
+    activedAt: new Date(),
   },
   reducers: {
     updateProfileInfos(state : ProfileState, action: PayloadAction<ProfileState>) {

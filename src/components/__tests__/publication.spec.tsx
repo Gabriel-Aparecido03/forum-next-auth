@@ -1,12 +1,15 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vitest } from "vitest";
 import { Publication } from "../publication";
+import { renderWithProviders } from "./mock-store/redux-mock-store";
 
 describe("<Publication />", () => {
+
+  vitest.mock('next/navigation')
+
   it("should be show correct infos of publication", () => {
-    const { getByText,getByTestId } = render(
+    const { getByText, getByTestId } = renderWithProviders(
       <Publication
-        createdAt={new Date()}
+        createdAt={new Date(2024,0,1)}
         description="lorem-description"
         id="id-publication"
         profileId="0"
@@ -19,10 +22,12 @@ describe("<Publication />", () => {
     const isShouldBeShowDateFormat = getByText("January 1, 2024", {
       exact: false,
     });
-    const isShouldBeShowCorrectDescription = getByText("lorem-description")
-    const isShouldBeShowCorrectTitle = getByText("lorem-title")
-    const isShouldBeShowCorrectUsername = getByText("lorem-username")
-    const isLinkCorrectToThePublicationPage = getByTestId("publication-link-test")
+    const isShouldBeShowCorrectDescription = getByText("lorem-description");
+    const isShouldBeShowCorrectTitle = getByText("lorem-title");
+    const isShouldBeShowCorrectUsername = getByText("lorem-username");
+    const isLinkCorrectToThePublicationPage = getByTestId(
+      "publication-link-test"
+    );
 
     expect(isShouldBeShowDateFormat).toBeTruthy();
     expect(isShouldBeShowCorrectDescription).toBeTruthy();

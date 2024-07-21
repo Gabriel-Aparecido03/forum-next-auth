@@ -17,11 +17,10 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Button,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Separator,
+  Separator
 } from "./ui";
 
 export function HeaderProfile() {
@@ -30,7 +29,7 @@ export function HeaderProfile() {
 
   const dispatch = useAppDispatch()
 
-  const { push } = useRouter()
+  const router = useRouter()
 
   function handleLogout() {
     dispatch(updateUserInfos({
@@ -46,7 +45,7 @@ export function HeaderProfile() {
       username : null
     }))
 
-    push('/app')
+    router.push('/app')
   }
   
   return (
@@ -54,7 +53,7 @@ export function HeaderProfile() {
       <div>
         <Popover>
           <PopoverTrigger>
-            {id ? <Button text="Account" /> : <List />}
+            {id ? "Account" : <List data-testid="open-dialog-without-logged"/>}
           </PopoverTrigger>
           <PopoverContent className="flex flex-col mr-3">
             <ul>

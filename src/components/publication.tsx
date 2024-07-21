@@ -1,5 +1,5 @@
 import { dateFormatPublication } from "@/utils/date-format-publication";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ProfileTag } from "./profile-tag";
 
 interface PostPropsType {
@@ -21,6 +21,9 @@ export function Publication({
   updatedAt,
   title,
 }: PostPropsType) {
+
+  const router = useRouter()
+
   const titleExcerpt =
     title.length > 100 ? title.slice(0, 100).concat("...") : title;
   const descriptionExcerpt =
@@ -29,10 +32,9 @@ export function Publication({
       : description;
 
   return (
-    <Link
-      href={`/app/publication/${id}`}
-      prefetch
-      date-testid="publication-link-test"
+    <div
+      onClick={() => router.push(`/app/publication/${id}`)}
+      data-testid="publication-link-test"
       className="p-8 rounded-lg min-h-[150px] border border-solid border-zinc-300 flex items-start justify-center gap-3 w-[800px] hover:cursor-pointer flex-col hover:border-zinc-600 z-0"
     >
       <div className="w-full items-center justify-between flex">
@@ -44,6 +46,6 @@ export function Publication({
       </div>
       <h3 className="font-bold text-2xl text-zinc-800">{titleExcerpt}</h3>
       <p className="font-normal text-sm text-zinc-600">{descriptionExcerpt}</p>
-    </Link>
+    </div>
   );
 }
