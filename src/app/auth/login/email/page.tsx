@@ -9,6 +9,7 @@ import { meUser } from "@/services/auth/user-me";
 import { meProfile } from "@/services/profile/me-profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
+import { AxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,7 +19,7 @@ import { z } from "zod";
 
 const SchemaFormLoginPassword = z.object({
   email: z.string().email(),
-  password: z.string(),
+  password: z.string().min(1, { message: "Invalid password" }),
 });
 
 type SchemaFormLoginPasswordType = z.infer<typeof SchemaFormLoginPassword>;
@@ -39,8 +40,8 @@ export default function Email() {
   } = useForm<SchemaFormLoginPasswordType>({
     resolver: zodResolver(SchemaFormLoginPassword),
     defaultValues: {
-      email: "jonhdoe@email.com",
-      password: "Teste@123",
+      email: "",
+      password: "",
     },
   });
 
@@ -50,28 +51,23 @@ export default function Email() {
   }: SchemaFormLoginPasswordType) {
     try {
       setIsLoading(true);
-      const res = await MakeLoginWithPassword({ email , password })
+      const res = await MakeLoginWithPassword({ email, password });
 
       if (res.status === 201) {
-        toast({
-          title: "Login make with Success !",
-          description: "Enjoy your journet at Forum",
-          variant: "success",
-        });
-
-        const responseUser = await meUser()
-        const responseProfile = await meProfile()
+        const responseUser = await meUser();
+        const responseProfile = await meProfile();
 
         if (responseUser.status === 200 && responseProfile.status === 200) {
-          const { email , id } = responseUser.data.user
+          const { email, id } = responseUser.data.user;
           dispatch(
             updateUserInfos({
               email,
-              id
+              id,
             })
           );
 
-          const { username ,description,activedAt } = responseProfile.data.profile
+          const { username, description, activedAt } =
+            responseProfile.data.profile;
 
           dispatch(
             updateProfileInfos({
@@ -83,21 +79,23 @@ export default function Email() {
             })
           );
 
-          if(!activedAt) {
+          if (!activedAt) {
             toast({
-              title: "Congratsss ! Welcome =)",
-              description: "Its look like your first access !",
+              title: "Login make with Success !",
+              description: "Enjoy your journet at Forum",
+              variant: "success",
             });
 
-            return push(`/app/profile/${responseProfile.data.profile.id}/edit`)
+            return push(`/app/profile/me/edit`);
           }
 
           toast({
             title: "Enjoy your journey at Next Forum",
             description: "Its look like your first access !",
+            variant: "success",
           });
 
-          return push(`/app`)
+          return push(`/app`);
         }
       }
 
@@ -109,10 +107,15 @@ export default function Email() {
 
       setError("root", { message: "" });
     } catch (error) {
-      toast({
-        title: "Expected error =(",
-        variant: "destructive",
-      });
+      if (error instanceof AxiosError)
+        return toast({
+          title:
+            error?.response?.status === 401
+              ? "Credentials Invalid"
+              : "Unnexpected Error",
+          description: error?.response?.data ?? "= )",
+          variant: "destructive",
+        });
     } finally {
       setIsLoading(false);
     }

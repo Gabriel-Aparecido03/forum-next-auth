@@ -4,8 +4,6 @@ import { PasswordValidation } from "@/components/password-validation";
 import { Button, Separator, TextInput } from "@/components/ui";
 import { useToast } from "@/hooks/user-toast";
 import { api } from "@/lib/api";
-import { validateUsername } from "@/utils/name-criteria";
-import { validatePassword } from "@/utils/password-criteria";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
 import Link from "next/link";
@@ -24,24 +22,17 @@ const SchemaForm = z
     password: z
       .string()
       .min(2, "Password is too short")
-      .max(25, "Password is soo long"),
+      .max(25, "Password is soo long")
+      .regex(
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{5,}$/,
+        { message: "Password dont agree with password policy requirements"}
+      ),
     confirmPassword: z
       .string()
       .min(2, "Confrim Password is too short")
       .max(25, "Confrim Password is soo long"),
   })
-  .refine((data) => data.confirmPassword === data.password, {
-    message: "Passwords dont match",
-    path: ["confirmPassword"],
-  })
-  .refine((data) => validatePassword(data.password), {
-    message: "Password dont agree with password policy requirements",
-    path: ["confirmPassword", "password"],
-  })
-  .refine((data) => validateUsername(data.username.trim()), {
-    message: "Username just contain letters",
-    path: ["Username"],
-  });
+  
 
 type SchemaFormType = z.infer<typeof SchemaForm>;
 
@@ -58,51 +49,61 @@ export default function Page() {
     handleSubmit,
     setError,
     setFocus,
+    getValues,
     formState: { errors },
   } = useForm<SchemaFormType>({
     resolver: zodResolver(SchemaForm),
     defaultValues: {
-      confirmPassword: "Teste@123",
-      username: "JohnDoe",
-      email: "jonhdoe@email.com",
-      password: "Teste@123",
+      confirmPassword: "",
+      username: "",
+      email: "",
+      password: "",
     },
   });
 
+  /* 
+  confirmPassword: "Teste@123",
+      username: "JohnDoe",
+      email: "jonhdoe@email.com",
+      password: "Teste@123", 
+  
+  */
+
   async function handleRegister(data: SchemaFormType) {
+    console.log('..')
     try {
-      setIsTransaction(true)
-      const [emailAlreadyExits, usernameAlreadyExists ] = await Promise.all([
+      setIsTransaction(true);
+      const [emailAlreadyExits, usernameAlreadyExists] = await Promise.all([
         handleEmailAlreadyExists(data.email.trim()),
         handleUsernameAlreadyExists(data.username.trim()),
       ]);
 
-      if(emailAlreadyExits) {
-        setError("email",{ message : "Email is already exists !"})
-        setFocus("email")
+      if (emailAlreadyExits) {
+        setError("email", { message: "Email is already exists !" });
+        setFocus("email");
         return;
       }
 
-      if(usernameAlreadyExists) {
-        setError("username",{ message : "Username is already exists !"})
-        setFocus("username")
+      if (usernameAlreadyExists) {
+        setError("username", { message: "Username is already exists !" });
+        setFocus("username");
         return;
       }
 
-      const res = await api.post('/auth',{
-        email : data.email.trim(),
-        username : data.username.trim(),
-        password: data.password
-      })
+      const res = await api.post("/auth", {
+        email: data.email.trim(),
+        username: data.username.trim(),
+        password: data.password,
+      });
 
-      if(res.status === 200 ) {
+      if (res.status === 200) {
         toast({
           title: "Congrats !",
           description: "Welcome, enjoy your journey at FORUM !",
           variant: "success",
         });
         /* return push(`/auth/congrats?username=${data.username}`) */
-        return push(`/app`) 
+        return push(`/auth/login/email`);
       }
     } catch (error) {
     } finally {
@@ -113,7 +114,7 @@ export default function Page() {
   async function handleEmailAlreadyExists(email: string) {
     try {
       const res = await api.get(`/validate/email/${email}`);
-      return res.data
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -122,7 +123,7 @@ export default function Page() {
   async function handleUsernameAlreadyExists(username: string) {
     try {
       const res = await api.get(`/validate/username/${username}`);
-      return res.data
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -192,9 +193,9 @@ export default function Page() {
         </div>
       </div>
       <PasswordValidation
-        password="123"
+        password={getValues().password}
         show={
-          errors.confirmPassword?.message ===
+          errors.password?.message ===
           "Password dont agree with password policy requirements"
         }
       />

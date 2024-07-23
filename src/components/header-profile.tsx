@@ -91,7 +91,7 @@ export function HeaderProfile() {
                   <li className="flex items-center justify-start p-2 hover:cursor-pointer m-1 rounded-md hover:bg-zinc-300/20 gap-1 h-10">
                     <User className="text-zinc-800 w-5 h-5" />
                     <Link
-                      href="/auth/"
+                      href="/auth/register"
                       className="text-xs font-semibold text-zinc-600"
                     >
                       Create account

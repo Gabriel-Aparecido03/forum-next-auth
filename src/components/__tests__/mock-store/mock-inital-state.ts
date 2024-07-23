@@ -6,11 +6,11 @@ export const mockInitalData: RootState = {
     email: "user@example.com"
   },
   profile: {
-    id: null,
-    username: null,
-    userId: null,
-    description: null,
-    activedAt: null
+    id: "",
+    username: "",
+    userId: "",
+    description: "",
+    activedAt: new Date()
   },
   profileView: {
     id: null,

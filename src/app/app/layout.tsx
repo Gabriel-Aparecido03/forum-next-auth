@@ -1,4 +1,3 @@
-import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 export default function RootLayout({
@@ -11,8 +10,7 @@ export default function RootLayout({
       <Header />
       <div className="flex flex-1 h-full">
       {children}
-      </div>
-      <Footer />
+      </div> 
     </main>
   );
 }
